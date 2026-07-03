@@ -1,0 +1,112 @@
+﻿@page "/login"
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+
+
+<div class="login-container">
+
+    <div class="login-card">
+        <div class="login-header">
+            <h1>🏊 GuardPool</h1>
+            <p>Smart Pool Monitoring</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(erro))
+        {
+            <div class="login-erro">@erro</div>
+        }
+
+        <div class="login-form">
+            <div class="login-field">
+                <label>Email</label>
+                <input type="email" @bind="email" placeholder="seu@email.com" />
+            </div>
+            <div class="login-field">
+                <label>Senha</label>
+                <input type="password" @bind="senha" placeholder="••••••••" />
+            </div>
+            <button class="login-btn" @onclick="Entrar" disabled="@carregando">
+                @(carregando ? "Entrando..." : "Entrar")
+            </button>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private string email = string.Empty;
+    private string senha = string.Empty;
+    private string erro = string.Empty;
+    private bool carregando = false;
+
+    private async Task Entrar()
+    {
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(senha))
+        {
+            erro = "Preencha email e senha.";
+            return;
+        }
+
+        carregando = true;
+        erro = string.Empty;
+
+        try
+        {
+            using var http = new System.Net.Http.HttpClient();
+            var url = "https://kxfkyzbghxmfqskogrqt.supabase.co/auth/v1/token?grant_type=password";
+            var payload = new { email, password = senha };
+            var content = new System.Net.Http.StringContent(
+                System.Text.Json.JsonSerializer.Serialize(payload),
+                System.Text.Encoding.UTF8,
+                "application/json"
+            );
+            content.Headers.Add("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4Zmt5emJnaHhtZnFza29ncnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTEwNjMsImV4cCI6MjA5NDk2NzA2M30.Fe6iz8qsxLM_x3KOHN2iNUH698jrxXUi1NaCc8nzACs");
+
+            var response = await http.PostAsync(url, content);
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                erro = "Email ou senha incorretos.";
+                return;
+            }
+
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            var token = doc.RootElement.GetProperty("access_token").GetString();
+            var userId = doc.RootElement.GetProperty("user").GetProperty("id").GetString();
+
+            // Buscar dados do usuario na tabela usuarios
+            using var http2 = new System.Net.Http.HttpClient();
+            http2.DefaultRequestHeaders.Add("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4Zmt5emJnaHhtZnFza29ncnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTEwNjMsImV4cCI6MjA5NDk2NzA2M30.Fe6iz8qsxLM_x3KOHN2iNUH698jrxXUi1NaCc8nzACs");
+            http2.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+            var jsonUsuario = await http2.GetStringAsync($"https://kxfkyzbghxmfqskogrqt.supabase.co/rest/v1/usuarios?select=*&user_id=eq.{userId}&ativo=eq.true&limit=1");
+            var docUsuario = System.Text.Json.JsonDocument.Parse(jsonUsuario);
+
+            if (docUsuario.RootElement.GetArrayLength() == 0)
+            {
+                erro = "Acesso não autorizado.";
+                return;
+            }
+
+            var usuario = docUsuario.RootElement[0];
+            var idCliente = usuario.GetProperty("id_cliente").GetInt64();
+            var nomeUsuario = usuario.GetProperty("nome").GetString();
+
+            // Salvar sessão no localStorage via JS
+            await JS.InvokeVoidAsync("sessionStorage.setItem", "gp_token", token);
+            await JS.InvokeVoidAsync("sessionStorage.setItem", "gp_id_cliente", idCliente.ToString());
+            await JS.InvokeVoidAsync("sessionStorage.setItem", "gp_nome", nomeUsuario);
+
+            Nav.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            erro = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            carregando = false;
+        }
+    }
+}

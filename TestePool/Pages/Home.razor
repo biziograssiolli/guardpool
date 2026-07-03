@@ -1,0 +1,343 @@
+﻿@page "/"
+@inject IJSRuntime JS
+@implements IDisposable
+@inject NavigationManager Nav
+
+<div class="gp-container">
+
+    <div class="gp-header">
+        <h1>🏊 GuardPool</h1>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <span class="gp-status ok">✅ Conectado</span>
+            <button class="btn-sair" @onclick="Sair">Sair</button>
+        </div>
+    </div>
+
+    @if (carregando)
+    {
+        <p>Carregando...</p>
+    }
+    else
+    {
+        <div class="gp-selector">
+            <label>Selecione a piscina</label>
+            <select @onchange="SelecionarPiscina">
+                @foreach (var p in piscinas)
+                {
+                    <option value="@p.id">@p.nome</option>
+                }
+            </select>
+        </div>
+
+        <div class="gp-dashboard">
+
+            <!-- COLUNA ESQUERDA: Temperaturas + Cloro -->
+            <div class="gp-col-esquerda">
+                <div class="gp-temps">
+                    <div class="gp-card">
+                        <div class="gp-card-title">Temp. Água</div>
+                        <div class="gp-card-value azul">@tempAgua °C</div>
+                    </div>
+                    <div class="gp-card">
+                        <div class="gp-card-title">Temp. Externa</div>
+                        <div class="gp-card-value laranja">@tempExterna °C</div>
+                    </div>
+                </div>
+                <div class="gp-gauge-card">
+                    <div class="gp-card-title">Cloro (ORP)</div>
+                    <div class="gp-gauge-valor @corOrp">@orp mV</div>
+                    <div class="gp-gauge-barra">
+                        <div class="gp-gauge-fill @corOrp" style="width: @OrpPercent%"></div>
+                    </div>
+                    <div class="gp-gauge-limites">
+                        <span>400</span>
+                        <span>Ideal: 650–850</span>
+                        <span>1000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUNA DIREITA: Clima + pH -->
+            <div class="gp-col-direita">
+                @if (climaCarregado)
+                {
+                    <div class="gp-clima">
+                        <div class="gp-clima-atual">
+                            <div class="gp-clima-icone">@climaIconeAtual</div>
+                            <div class="gp-clima-temp">@climaTemp°C</div>
+                            <div class="gp-clima-cidade">@nomeCidade</div>
+                        </div>
+                        <div class="gp-clima-previsao">
+                            @foreach (var dia in previsao)
+                            {
+                                <div class="gp-clima-dia">
+                                    <div class="gp-clima-dia-nome">@dia.nome</div>
+                                    <div class="gp-clima-dia-icone">@dia.icone</div>
+                                    <div class="gp-clima-dia-temps">
+                                        <span class="gp-clima-max">@dia.max°</span>
+                                        <span class="gp-clima-min">@dia.min°</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                <div class="gp-gauge-card">
+                    <div class="gp-card-title">pH da Piscina</div>
+                    <div class="gp-gauge-valor @corPh">@ph</div>
+                    <div class="gp-gauge-barra">
+                        <div class="gp-gauge-fill @corPh" style="width: @PhPercent%"></div>
+                    </div>
+                    <div class="gp-gauge-limites">
+                        <span>6.0</span>
+                        <span>Ideal: 7.2–7.6</span>
+                        <span>9.0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gp-atualizacao">Última leitura: @ultimaLeitura</div>
+            
+            <div class="gp-grafico-card">
+                <div class="gp-card-title">Histórico de Temperaturas</div>
+                <div style="height: 300px;">
+                    <canvas id="graficoTemp"></canvas>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+@code {
+    private bool carregando = true;
+    private bool climaCarregado = false;
+    private string tempAgua = "-";
+    private string tempExterna = "-";
+    private string ph = "-";
+    private string orp = "-";
+    private string corPh = "cinza";
+    private string corOrp = "cinza";
+    private string ultimaLeitura = "-";
+    private string climaTemp = "-";
+    private string climaIconeAtual = "🌡️";
+    private string nomeCidade = "-";
+    private double phVal = 0;
+    private double orpVal = 0;
+    private System.Threading.Timer? _timer;
+
+    private string OrpPercent => orpVal > 0
+        ? Math.Min(100, Math.Max(0, (orpVal - 400) / 6.0)).ToString("F0")
+        : "0";
+
+    private string PhPercent => phVal > 0
+        ? Math.Min(100, Math.Max(0, (phVal - 6.0) / 0.03)).ToString("F0")
+        : "0";
+
+    private const string Key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4Zmt5emJnaHhtZnFza29ncnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTEwNjMsImV4cCI6MjA5NDk2NzA2M30.Fe6iz8qsxLM_x3KOHN2iNUH698jrxXUi1NaCc8nzACs";
+    private const string Base = "https://kxfkyzbghxmfqskogrqt.supabase.co/rest/v1";
+
+    private List<(long id, string nome, double lat, double lon, string cidade)> piscinas = new();
+    private long piscinaAtual = 0;
+    private List<(string nome, string icone, string max, string min)> previsao = new();
+
+    protected override async Task OnInitializedAsync()
+
+    {
+        var token = await JS.InvokeAsync<string?>("sessionStorage.getItem", "gp_token");
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        var idClienteStr = await JS.InvokeAsync<string?>("sessionStorage.getItem", "gp_id_cliente");
+        var idCliente = long.Parse(idClienteStr ?? "0");
+        try
+        {
+            using var http = new System.Net.Http.HttpClient();
+            var json = await http.GetStringAsync($"{Base}/piscinas?select=id,nome_piscina,latitude,longitude,cidade&id_cliente=eq.{idCliente}&apikey={Key}");
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            foreach (var p in doc.RootElement.EnumerateArray())
+            {
+                piscinas.Add((
+                    p.GetProperty("id").GetInt64(),
+                    p.GetProperty("nome_piscina").GetString() ?? "-",
+                    p.GetProperty("latitude").GetDouble(),
+                    p.GetProperty("longitude").GetDouble(),
+                    p.GetProperty("cidade").GetString() ?? "-"
+                ));
+            }
+
+            if (piscinas.Count > 0)
+            {
+                piscinaAtual = piscinas[0].id;
+                await CarregarLeitura(piscinaAtual);
+                await CarregarClima(piscinas[0].lat, piscinas[0].lon, piscinas[0].cidade);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro: {ex.Message}");
+        }
+        finally
+        {
+            carregando = false;
+        }
+        await CarregarClima(piscinas[0].lat, piscinas[0].lon, piscinas[0].cidade);
+        await CarregarGrafico(piscinaAtual);
+    }
+
+    private async Task SelecionarPiscina(ChangeEventArgs e)
+    {
+        piscinaAtual = long.Parse(e.Value!.ToString()!);
+        var piscina = piscinas.First(p => p.id == piscinaAtual);
+        await CarregarLeitura(piscinaAtual);
+        await CarregarClima(piscina.lat, piscina.lon, piscina.cidade);
+        await CarregarClima(piscina.lat, piscina.lon, piscina.cidade);
+        await CarregarGrafico(piscinaAtual);
+    }
+
+    private async Task CarregarLeitura(long idPiscina)
+    {
+        try
+        {
+            using var http = new System.Net.Http.HttpClient();
+            var json = await http.GetStringAsync($"{Base}/leitura_historico?select=*&id_piscina=eq.{idPiscina}&order=data_medicao.desc&limit=1&apikey={Key}");
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            var l = doc.RootElement[0];
+
+            var tAgua = l.GetProperty("temp_agua").GetDouble();
+            var tExterna = l.GetProperty("temp_externa").GetDouble();
+            phVal = l.GetProperty("ph").GetDouble();
+            orpVal = l.GetProperty("cloro_orp").GetInt32();
+            var data = l.GetProperty("data_medicao").GetString() ?? "";
+
+            tempAgua = tAgua.ToString("F1");
+            tempExterna = tExterna.ToString("F1");
+            ph = phVal.ToString("F2");
+            orp = orpVal.ToString("F0");
+            var dataParsed = DateTime.Parse(data);
+            ultimaLeitura = dataParsed.ToString("dd/MM") + " às " + dataParsed.ToString("HH:mm");
+
+            corPh = phVal >= 7.2 && phVal <= 7.6 ? "verde" :
+                    phVal >= 7.0 && phVal <= 7.8 ? "amarelo" : "vermelho";
+            corOrp = orpVal >= 650 && orpVal <= 850 ? "verde" :
+                     orpVal >= 500 && orpVal <= 900 ? "amarelo" : "vermelho";
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro leitura: {ex.Message}");
+        }
+    }
+
+    private async Task CarregarClima(double lat, double lon, string cidade)
+    {
+        try
+        {
+            climaCarregado = false;
+            using var http = new System.Net.Http.HttpClient();
+            var url = $"https://api.open-meteo.com/v1/forecast?latitude={lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}&longitude={lon.ToString(System.Globalization.CultureInfo.InvariantCulture)}&current=temperature_2m,weathercode&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=America/Sao_Paulo&forecast_days=3";
+            var json = await http.GetStringAsync(url);
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+
+            var current = doc.RootElement.GetProperty("current");
+            climaTemp = current.GetProperty("temperature_2m").GetDouble().ToString("F0");
+            climaIconeAtual = ClimaIcone(current.GetProperty("weathercode").GetInt32());
+            nomeCidade = cidade;
+
+            var daily = doc.RootElement.GetProperty("daily");
+            var maxs = daily.GetProperty("temperature_2m_max");
+            var mins = daily.GetProperty("temperature_2m_min");
+            var codes = daily.GetProperty("weathercode");
+
+            previsao = new();
+            var nomes = new[] { "Hoje", "Amanhã", "Depois" };
+            for (int i = 0; i < 3; i++)
+            {
+                previsao.Add((
+                    nomes[i],
+                    ClimaIcone(codes[i].GetInt32()),
+                    maxs[i].GetDouble().ToString("F0"),
+                    mins[i].GetDouble().ToString("F0")
+                ));
+            }
+
+            climaCarregado = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro clima: {ex.Message}");
+        }
+    }
+
+    private async Task CarregarGrafico(long idPiscina)
+    {
+        try
+        {
+            using var http = new System.Net.Http.HttpClient();
+            var json = await http.GetStringAsync($"{Base}/leitura_historico?select=data_medicao,temp_agua,temp_externa&id_piscina=eq.{idPiscina}&order=data_medicao.desc&limit=100&apikey={Key}");
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+
+            var labels = new List<string>();
+            var dadosAgua = new List<double>();
+            var dadosExterna = new List<double>();
+
+            var leituras = doc.RootElement.EnumerateArray().Reverse().ToList();
+
+            foreach (var l in leituras)
+            {
+                var data = l.GetProperty("data_medicao").GetString() ?? "";
+                var dataParsed = DateTime.Parse(data);
+                labels.Add(dataParsed.ToString("dd/MM HH:mm"));
+                dadosAgua.Add(l.GetProperty("temp_agua").GetDouble());
+                dadosExterna.Add(l.GetProperty("temp_externa").GetDouble());
+            }
+
+            await JS.InvokeVoidAsync("criarGrafico", labels, dadosAgua, dadosExterna);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro gráfico: {ex.Message}");
+        }
+    }
+
+    private string ClimaIcone(int code) => code switch
+    {
+        0 => "☀️",
+        1 or 2 => "🌤️",
+        3 => "☁️",
+        45 or 48 => "🌫️",
+        51 or 53 or 55 => "🌦️",
+        61 or 63 or 65 => "🌧️",
+        71 or 73 or 75 => "❄️",
+        80 or 81 or 82 => "🌧️",
+        95 => "⛈️",
+        _ => "🌡️"
+    };
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _timer = new System.Threading.Timer(async _ =>
+            {
+                await CarregarLeitura(piscinaAtual);
+                await InvokeAsync(StateHasChanged);
+            }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+        }
+    }
+    private async Task Sair()
+    {
+        await JS.InvokeVoidAsync("sessionStorage.removeItem", "gp_token");
+        await JS.InvokeVoidAsync("sessionStorage.removeItem", "gp_id_cliente");
+        await JS.InvokeVoidAsync("sessionStorage.removeItem", "gp_nome");
+        Nav.NavigateTo("/login");
+    }
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GuardPool</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/app.css" />
+    <style>
+        #blazor-error-ui {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        <a href="." class="reload">Recarregar</a>
+        <span class="dismiss">🗙</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        window.criarGrafico = (labels, dadosAgua, dadosExterna) => {
+            const ctx = document.getElementById('graficoTemp').getContext('2d');
+            if (window.graficoInstance) {
+                window.graficoInstance.destroy();
+            }
+            window.graficoInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Temp. Água',
+                            data: dadosAgua,
+                            borderColor: '#2980b9',
+                            backgroundColor: 'rgba(41,128,185,0.1)',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 6,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Temp. Externa',
+                            data: dadosExterna,
+                            borderColor: '#555555',
+                            backgroundColor: 'rgba(85,85,85,0.05)',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 6,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => items[0].label,
+                                label: (item) => ` ${item.dataset.label}: ${item.parsed.y.toFixed(1)} °C`
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxTicksLimit: 10,
+                                maxRotation: 45
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                callback: (val) => val + ' °C'
+                            }
+                        }
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+
+</html>

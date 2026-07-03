@@ -1,0 +1,454 @@
+html, body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+.gp-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.gp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+    .gp-header h1 {
+        margin: 0;
+        color: #1a5276;
+        font-size: 28px;
+    }
+
+.gp-status.ok {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.gp-status.erro {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.gp-selector {
+    margin-bottom: 20px;
+}
+
+    .gp-selector label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .gp-selector select {
+        width: 100%;
+        max-width: 400px;
+        padding: 10px 14px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        color: #333;
+        background: white;
+    }
+
+.gp-dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Coluna esquerda: temp água + temp externa empilhadas */
+.gp-col-esquerda {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.gp-temps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Coluna direita: clima */
+.gp-col-direita {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.gp-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.gp-card-title {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.gp-card-value {
+    font-size: 40px;
+    font-weight: 700;
+}
+
+/* Clima */
+.gp-clima {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(135deg, #1a6fa8, #2980b9);
+    border-radius: 12px;
+    padding: 20px;
+    color: white;
+    flex: 1;
+}
+
+.gp-clima-atual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+
+.gp-clima-icone {
+    font-size: 40px;
+    line-height: 1;
+}
+
+.gp-clima-temp {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.gp-clima-cidade {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-top: 2px;
+}
+
+.gp-clima-previsao {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+}
+
+.gp-clima-dia {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 8px 10px;
+    flex: 1;
+}
+
+.gp-clima-dia-nome {
+    font-size: 11px;
+    opacity: 0.85;
+    font-weight: 600;
+}
+
+.gp-clima-dia-icone {
+    font-size: 22px;
+}
+
+.gp-clima-dia-temps {
+    display: flex;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.gp-clima-max {
+    font-weight: 700;
+}
+
+.gp-clima-min {
+    opacity: 0.7;
+}
+
+/* Gauges */
+.gp-gauge-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.gp-gauge-valor {
+    font-size: 48px;
+    font-weight: 700;
+    margin: 8px 0 16px;
+}
+
+.gp-gauge-barra {
+    height: 14px;
+    background: #eee;
+    border-radius: 7px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.gp-gauge-fill {
+    height: 100%;
+    border-radius: 7px;
+    transition: width 0.6s ease;
+}
+
+    .gp-gauge-fill.verde {
+        background: #27ae60;
+    }
+
+    .gp-gauge-fill.amarelo {
+        background: #f39c12;
+    }
+
+    .gp-gauge-fill.vermelho {
+        background: #e74c3c;
+    }
+
+    .gp-gauge-fill.cinza {
+        background: #bdc3c7;
+    }
+
+.gp-gauge-limites {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #aaa;
+}
+
+.gp-atualizacao {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    color: #bbb;
+    text-align: right;
+}
+
+/* Cores */
+.verde {
+    color: #27ae60;
+}
+
+.amarelo {
+    color: #f39c12;
+}
+
+.vermelho {
+    color: #e74c3c;
+}
+
+.azul {
+    color: #2980b9;
+}
+
+.laranja {
+    color: #e67e22;
+}
+
+.cinza {
+    color: #95a5a6;
+}
+
+#blazor-error-ui {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .gp-dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .gp-col-esquerda,
+    .gp-col-direita {
+        display: contents;
+    }
+
+    .gp-dashboard {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .gp-temps {
+        order: 1;
+    }
+
+    .gp-clima {
+        order: 2;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .gp-clima-previsao {
+        width: 100%;
+    }
+
+    .gp-clima-dia {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .gp-col-esquerda .gp-gauge-card {
+        order: 3;
+    }
+
+    .gp-col-direita .gp-gauge-card {
+        order: 4;
+    }
+
+    .gp-atualizacao {
+        order: 5;
+        grid-column: 1;
+    }
+
+    .gp-card-value {
+        font-size: 32px;
+    }
+
+    .gp-gauge-valor {
+        font-size: 36px;
+    }
+    .gp-grafico-card {
+        order: 6;
+    }
+}
+.gp-grafico-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    grid-column: 1 / -1;
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a5276, #2980b9);
+    padding: 24px;
+}
+
+.login-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+    .login-header h1 {
+        margin: 0 0 8px;
+        color: #1a5276;
+        font-size: 28px;
+    }
+
+    .login-header p {
+        margin: 0;
+        color: #888;
+        font-size: 14px;
+    }
+
+.login-erro {
+    background: #fee;
+    color: #c00;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.login-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+    .login-field label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .login-field input {
+        padding: 12px 14px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        color: #333;
+        outline: none;
+        transition: border 0.2s;
+    }
+
+        .login-field input:focus {
+            border-color: #2980b9;
+        }
+
+.login-btn {
+    background: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+}
+
+    .login-btn:hover {
+        background: #1a6fa8;
+    }
+
+    .login-btn:disabled {
+        background: #aaa;
+        cursor: not-allowed;
+    }
+.btn-sair {
+    background: transparent;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+    .btn-sair:hover {
+        background: #fee;
+        border-color: #e74c3c;
+        color: #e74c3c;
+    }
