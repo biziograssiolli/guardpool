@@ -1,0 +1,4 @@
+[[headers]] 
+  for = "/_framework/*" 
+  [headers.values] 
+    Content-Type = "application/wasm"

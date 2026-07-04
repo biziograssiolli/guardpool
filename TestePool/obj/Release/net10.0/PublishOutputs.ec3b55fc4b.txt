@@ -1,0 +1,3 @@
+C:\guardpool-deploy\TestePool.runtimeconfig.json
+C:\guardpool-deploy\dotnet.js
+C:\guardpool-deploy\web.config
