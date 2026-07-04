@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Fabrizio\\TestePool\\TestePool\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{37404F69-35D5-5B55-9CA1-CC2494F9FC1D}|TestePool\\TestePool.csproj|c:\\fabrizio\\testepool\\testepool\\testepool\\wwwroot\\netlify.toml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{37404F69-35D5-5B55-9CA1-CC2494F9FC1D}|TestePool\\TestePool.csproj|solutionrelative:testepool\\wwwroot\\netlify.toml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{37404F69-35D5-5B55-9CA1-CC2494F9FC1D}|TestePool\\TestePool.csproj|c:\\fabrizio\\testepool\\testepool\\testepool\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
       "RelativeMoniker": "D:0:0:{37404F69-35D5-5B55-9CA1-CC2494F9FC1D}|TestePool\\TestePool.csproj|solutionrelative:testepool\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{37404F69-35D5-5B55-9CA1-CC2494F9FC1D}|TestePool\\TestePool.csproj|c:\\fabrizio\\testepool\\testepool\\testepool\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{37404F69-35D5-5B55-9CA1-CC2494F9FC1D}|TestePool\\TestePool.csproj|solutionrelative:testepool\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{37404F69-35D5-5B55-9CA1-CC2494F9FC1D}|TestePool\\TestePool.csproj|c:\\fabrizio\\testepool\\testepool\\testepool\\wwwroot\\netlify.toml||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{37404F69-35D5-5B55-9CA1-CC2494F9FC1D}|TestePool\\TestePool.csproj|solutionrelative:testepool\\wwwroot\\netlify.toml||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{37404F69-35D5-5B55-9CA1-CC2494F9FC1D}|TestePool\\TestePool.csproj|c:\\fabrizio\\testepool\\testepool\\testepool\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -34,11 +34,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": ".gitignore",
               "DocumentMoniker": "C:\\Fabrizio\\TestePool\\TestePool\\TestePool\\.gitignore",
               "RelativeDocumentMoniker": "TestePool\\.gitignore",
@@ -51,7 +51,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "netlify.toml",
               "DocumentMoniker": "C:\\Fabrizio\\TestePool\\TestePool\\TestePool\\wwwroot\\netlify.toml",
               "RelativeDocumentMoniker": "TestePool\\wwwroot\\netlify.toml",
@@ -59,7 +59,8 @@
               "RelativeToolTip": "TestePool\\wwwroot\\netlify.toml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-06-28T22:55:05.557Z"
+              "WhenOpened": "2026-06-28T22:55:05.557Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -75,7 +76,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "index.html",
               "DocumentMoniker": "C:\\Fabrizio\\TestePool\\TestePool\\TestePool\\wwwroot\\index.html",
               "RelativeDocumentMoniker": "TestePool\\wwwroot\\index.html",
@@ -83,8 +84,7 @@
               "RelativeToolTip": "TestePool\\wwwroot\\index.html",
               "ViewState": "AgIAAEUAAAAAAAAAAAAYwF0AAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
-              "WhenOpened": "2026-06-27T23:12:22.809Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-27T23:12:22.809Z"
             },
             {
               "$type": "Document",
