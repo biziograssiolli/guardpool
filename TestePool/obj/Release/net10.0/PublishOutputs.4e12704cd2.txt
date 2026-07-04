@@ -1,0 +1,3 @@
+C:\Fabrizio\TestePool\TestePool\publish\TestePool.runtimeconfig.json
+C:\Fabrizio\TestePool\TestePool\publish\dotnet.js
+C:\Fabrizio\TestePool\TestePool\publish\web.config

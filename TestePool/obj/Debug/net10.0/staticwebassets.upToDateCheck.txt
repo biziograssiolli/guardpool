@@ -1,0 +1,6 @@
+wwwroot\netlify.toml
+wwwroot\icon-192.png
+wwwroot\css\app.css
+wwwroot\index.html
+C:\Fabrizio\TestePool\TestePool\TestePool\wwwroot\css\app.css
+C:\Fabrizio\TestePool\TestePool\TestePool\wwwroot\index.html
